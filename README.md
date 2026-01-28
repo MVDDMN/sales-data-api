@@ -6,7 +6,7 @@
 - MongoDB
 
 ### Endpoints
-GET /api/sales?month=YYYY-MM
+GET /api/v1/sales?month=YYYY-MM
 
 ### Features
 - Monthly sales filtering

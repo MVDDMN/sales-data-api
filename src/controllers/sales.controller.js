@@ -1,30 +1,26 @@
 import { getSalesByMonth } from '../services/sales.service.js';
 
 export const getMonthlySales = async (request, reply) => {
-    const { month } = request.query;
+    const { month, page = 1, limit = 10 } = request.query; // default page=1, limit=10
 
     if (!month) {
         return reply.code(400).send({ message: 'Month is required (YYYY-MM)' });
     }
 
+    const skip = (page - 1) * limit; // calculate the number of documents to skip
+
     try {
-        const sales = await getSalesByMonth(month);
+        const sales = await getSalesByMonth(month, skip, Number(limit));
 
-        // If no sales found, return empty array
-        if (!sales || sales.length === 0) {
-            return reply.code(200).send([]);
-        }
-
-        const result = sales.map(sale => ({
-            customer: sale.customer?.name || 'Unknown',
-            products: sale.products?.map(p => p.name) || [],
-            date: sale.saleDate
-        }));
-
-        return reply.code(200).send(result);
+        return reply.code(200).send({
+            page: Number(page),
+            limit: Number(limit), 
+            count: sales.length,
+            data: sales
+        });
 
     } catch (error) {
-        console.error(error);
+        request.log.error(error);
         return reply.code(500).send({ message: 'Server error' });
     }
 };
