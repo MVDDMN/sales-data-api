@@ -14,6 +14,10 @@ const saleSchema = new mongoose.Schema({
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // admin/sales rep
 }, { timestamps: true });
 
+// Indexes for performance
+saleSchema.index({ saleDate: 1 });
+saleSchema.index({ customer: 1 });
+
 const Sale = mongoose.model('Sale', saleSchema, 'Sale');
 
 export default Sale;
