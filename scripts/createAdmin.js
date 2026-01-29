@@ -1,5 +1,5 @@
 //IMPORTANT!
-//Run this first: node scripts/createAdmin.js for user authorization
+//Run this first: node scripts/createAdmin.js to create an admin user for your database.
 //ONLY RUN ONCE
 
 import bcrypt from 'bcrypt';

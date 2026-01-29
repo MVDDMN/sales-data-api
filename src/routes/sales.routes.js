@@ -1,18 +1,26 @@
 import { getMonthlySales } from '../controllers/sales.controller.js';
-import { authorize } from '../plugins/authorize.js';
+import authorize from '../plugins/authorize.js';
 
 export default async function salesRoutes(fastify) {
-    console.log('fastify.authenticate:', typeof fastify.authenticate); // should print 'function'
-    console.log('authorize:', typeof authorize);                       // should print 'function'
 
-    fastify.get(
-        '/monthly',
-        {
-            preHandler: [
-                fastify.authenticate,        // now exists
-                authorize('admin', 'sales')  // still works
-            ]
-        },
-        getMonthlySales
-    );
+    fastify.get('/monthly', {
+        preHandler: [
+            fastify.authenticate,
+            authorize('admin', 'sales')
+        ],
+        schema: {
+            querystring: {
+                type: 'object',
+                required: ['month'],
+                properties: {
+                    month: {
+                        type: 'string',
+                        pattern: '^\\d{4}-\\d{2}$',
+                        description: 'Month in YYYY-MM format'
+                    }
+                }
+            }
+        }
+    }, getMonthlySales);
+
 }

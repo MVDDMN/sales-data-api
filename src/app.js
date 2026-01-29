@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import jwt from '@fastify/jwt';
 import authPlugin from './plugins/auth.js';
 import authRoutes from './routes/auth.routes.js';
+import errorHandler from './plugins/errorHandler.js';
 import salesRoutes from './routes/sales.routes.js';
 import rateLimit from '@fastify/rate-limit';
 
@@ -19,6 +20,9 @@ await app.register(jwt, {
 
 //Register auth plugin (depends on fastify.jwt)
 await app.register(authPlugin);
+
+//Error Handling
+await app.register(errorHandler);
 
 //Register routes
 app.register(authRoutes, { prefix: '/api/v1/auth' });
