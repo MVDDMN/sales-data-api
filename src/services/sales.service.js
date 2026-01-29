@@ -1,6 +1,6 @@
 import Sale from '../models/Sale.js';
 
-export const getSalesByMonth = async (month, skip, limit) => {
+export const getSalesByMonth = async (month, skip = 0, limit = 100) => {
     const startDate = new Date(`${month}-01`);
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + 1);
@@ -12,6 +12,6 @@ export const getSalesByMonth = async (month, skip, limit) => {
         .skip(skip)
         .limit(limit)
         .populate('customer', 'name email')
-        .populate('products', 'name price')
-        .lean(); //For performance benefit
+        .populate('products.product', 'name price') // FIX: populate nested product
+        .lean();
 };

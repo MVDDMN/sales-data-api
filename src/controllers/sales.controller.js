@@ -1,26 +1,32 @@
 import { getSalesByMonth } from '../services/sales.service.js';
+import { success, error } from '../utils/httpResponse.js';
 
 export const getMonthlySales = async (request, reply) => {
-    const { month, page = 1, limit = 10 } = request.query; // default page=1, limit=10
+    const { month } = request.query;
 
     if (!month) {
-        return reply.code(400).send({ message: 'Month is required (YYYY-MM)' });
+        return reply.code(400).send(error('Month is required (YYYY-MM)', 400));
     }
 
-    const skip = (page - 1) * limit; // calculate the number of documents to skip
-
     try {
-        const sales = await getSalesByMonth(month, skip, Number(limit));
+        const sales = await getSalesByMonth(month);
 
-        return reply.code(200).send({
-            page: Number(page),
-            limit: Number(limit), 
-            count: sales.length,
-            data: sales
-        });
+        const result = sales.map(sale => ({
+            customer: sale.customer?.name || 'Unknown',
+            products: sale.products?.map(p => ({
+                name: p.product?.name || 'Unknown',  // <-- FIXED: use p.product.name
+                quantity: p.quantity,
+                priceAtSale: p.priceAtSale
+            })) || [],
+            date: sale.saleDate,
+            totalAmount: sale.totalAmount,
+            discount: sale.discount,
+            status: sale.status
+        }));
 
-    } catch (error) {
-        request.log.error(error);
-        return reply.code(500).send({ message: 'Server error' });
+        return reply.code(200).send(success(result, 'Monthly sales retrieved'));
+
+    } catch (err) {
+        return reply.code(500).send(error('Server error', 500, err.message));
     }
 };

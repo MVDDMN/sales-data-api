@@ -1,9 +1,12 @@
-export const authorize =
-    (...roles) =>
-        async (request, reply) => {
-            const userRole = request.user.role;
+export default function authorize(...allowedRoles) {
+    return async function (request, reply) {
+        const user = request.user;
 
-            if (!roles.includes(userRole)) {
-                return reply.code(403).send({ message: 'Forbidden' });
-            }
-        };
+        if (!user || !allowedRoles.includes(user.role)) {
+            return reply.code(403).send({
+                status: 'error',
+                message: 'Forbidden: insufficient permissions'
+            });
+        }
+    };
+}
