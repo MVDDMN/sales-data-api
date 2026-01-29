@@ -34,6 +34,7 @@ Step 1 : Login
   "email": "admin@example.com",
   "password": "admin123"
 }
+
 Step 2 : Acquire the token given upon successful login
 
 Step 3 : Access the table and use the GET filter
