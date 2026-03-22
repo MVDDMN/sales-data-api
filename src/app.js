@@ -1,37 +1,52 @@
 import Fastify from 'fastify';
 import jwt from '@fastify/jwt';
-import authPlugin from './plugins/auth.js';
-import authRoutes from './routes/auth.routes.js';
-import errorHandler from './plugins/errorHandler.js';
-import salesRoutes from './routes/sales.routes.js';
 import rateLimit from '@fastify/rate-limit';
 
-// Models
+// Plugins
+import authPlugin from './plugins/auth.js';
+import errorHandler from './plugins/errorHandler.js';
+
+// Routes
+import authRoutes from './routes/auth.routes.js';
+import salesRoutes from './routes/sales.routes.js';
+import productRoutes from './routes/product.routes.js';
+import customerRoutes from './routes/customer.routes.js';
+
+// Models (ensure they are registered)
 import './models/Customer.js';
 import './models/Product.js';
 import './models/Sale.js';
 
 const app = Fastify({ logger: { level: 'info' } });
 
-//Register JWT first
+//CORE PLUGINS//
+
+// JWT
 await app.register(jwt, {
     secret: process.env.JWT_SECRET || 'SUPER_SECRET_KEY'
 });
 
-//Register auth plugin (depends on fastify.jwt)
+// Auth decorator
 await app.register(authPlugin);
 
-//Error Handling
+// Rate limiting
+await app.register(rateLimit, {
+    max: 100,
+    timeWindow: '1 minute'
+});
+
+// Centralized error handler
 await app.register(errorHandler);
 
-//Register routes
-app.register(authRoutes, { prefix: '/api/v1/auth' });
-app.register(salesRoutes, { prefix: '/api/v1/sale' });
+// Routes (Adjusted with consistent API prefix)
+app.register(async function (api, _opts) {
+    api.register(authRoutes, { prefix: '/auth' });
+    api.register(salesRoutes, { prefix: '/sales' });
+    api.register(productRoutes, { prefix: '/products' });
+    api.register(customerRoutes, { prefix: '/customers' });
+}, { prefix: '/api/v1' });
 
-//Health check
+// Health Check
 app.get('/health', async () => ({ status: 'OK' }));
-
-//Rate limit
-await app.register(rateLimit, { max: 100, timeWindow: '1 minute' });
 
 export default app;
