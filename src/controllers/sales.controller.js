@@ -4,8 +4,10 @@ import { success, error } from '../utils/httpResponse.js';
 export const getMonthlySales = async (request, reply) => {
     const { month } = request.query;
 
-    if (!month) {
-        return reply.code(400).send(error('Month is required (YYYY-MM)', 400));
+    //Semantic validation only
+    const date = new Date(`${month}-01`);
+    if (isNaN(date.getTime())) {
+        return reply.code(400).send(error('Invalid month format', 400));
     }
 
     try {
@@ -14,7 +16,7 @@ export const getMonthlySales = async (request, reply) => {
         const result = sales.map(sale => ({
             customer: sale.customer?.name || 'Unknown',
             products: sale.products?.map(p => ({
-                name: p.product?.name || 'Unknown',  // <-- FIXED: use p.product.name
+                name: p.product?.name || 'Unknown',
                 quantity: p.quantity,
                 priceAtSale: p.priceAtSale
             })) || [],

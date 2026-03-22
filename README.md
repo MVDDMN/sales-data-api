@@ -39,5 +39,4 @@ Step 2 : Acquire the token given upon successful login
 
 Step 3 : Access the table and use the GET filter
 - GET http://localhost:3000/api/v1/sale/monthly?month=year-month
-- Headers:
-Authorization : Bearer (Paste login token here)
+- Headers: Authorization : Bearer (Paste login token here)
